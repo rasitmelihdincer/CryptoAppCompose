@@ -1,10 +1,9 @@
 package com.example.cryptoapp.market
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.remote.UserWallet
 import com.example.remote.model.SearchCoin
 import com.example.remote.response.TrendingCoin
 import com.example.repo.CryptoRepository
@@ -23,18 +22,26 @@ class MarketScreenViewModel @Inject constructor(
     var searchedList = mutableStateOf(SearchCoin())
     var isSearching = mutableStateOf(false)
     var isLoading = mutableStateOf(false)
+    val wallets = mutableStateOf<List<UserWallet>>(listOf())
     init {
         getTrendingCoin()
     }
 
-     fun getTrendingCoin(){
-         isLoading.value = true
+    fun addUserWallet(coinName: String, coinCount: String) {
+        val newUserWallet = UserWallet(coinName, coinCount)
+        wallets.value = wallets.value + newUserWallet
+    }
+
+    fun getTrendingCoin(){
+        isLoading.value = true
         viewModelScope.launch {
             val response = repository.getTrendsCoins()
+
             when(response){
                 is Resource.Success -> {
                     cryptoList.value = response.data!!
                     isLoading.value = false
+
                 }
                 is Resource.Error -> {
                     println("viewmodellleld")

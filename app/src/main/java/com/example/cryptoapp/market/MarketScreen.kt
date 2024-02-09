@@ -1,6 +1,8 @@
 package com.example.cryptoapp.market
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,18 +15,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,9 +47,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cryptoapp.R
@@ -50,6 +62,7 @@ import com.example.remote.response.Coin
 
 @Composable
 fun MarketScreen(
+    navController: NavController,
     viewModel: MarketScreenViewModel = hiltViewModel()
 ){
     Surface(
@@ -58,16 +71,33 @@ fun MarketScreen(
     ) {
         Column{
             Spacer(modifier = Modifier.height(50.dp))
-             Text(
-              text = "Markets",
-               style = TextStyle(
-                 fontSize = 28.sp,
-                 lineHeight = 36.sp,
-                 fontWeight = FontWeight(500),
-                 color = Color(0xFFEEEEEE),
-               ),
-                 modifier = Modifier.padding(start = 16.dp)
-              )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Markets",
+                    style = TextStyle(
+                        fontSize = 28.sp,
+                        lineHeight = 36.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFFEEEEEE),
+                    ),
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_wallet_24),
+                    contentDescription = "walletIcon",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .clickable {
+                            navController.navigate("wallet_screen")
+                        }
+                    )
+            }
+
             SearchBar(
                 modifier = Modifier
                     .padding(16.dp)
@@ -120,7 +150,7 @@ fun SearchBar(
                  .onFocusChanged { focusState ->
                      isFocused = focusState.isFocused
                      if (!isFocused && text.isEmpty()) {
-                       //  viewModel.isSearching.value = true
+                         //  viewModel.isSearching.value = true
                      }
                  }
                  ,
@@ -134,7 +164,10 @@ fun SearchBar(
                      text = ""
                      isFocused = false
                      viewModel.isSearching.value = false
-                     onSearch("") // Arama sonuçlarını temizle
+                     onSearch("")
+                     println(viewModel.wallets.value)
+                     println("asdsadsda")
+
                  },
                  modifier = Modifier.align(Alignment.CenterEnd)
              ) {
@@ -166,22 +199,39 @@ fun SearchBar(
 @Composable
 fun CryptoItem(
     coin: Coin,
-
 ) {
+
+    val showDialog =  remember { mutableStateOf(false) }
+    var glideImage by remember {
+        mutableStateOf("")
+    }
+    var coinName by remember {
+        mutableStateOf("")
+    }
+    if(showDialog.value)
+        CustomDialog(value = "", image = glideImage, coinName = coinName, setShowDialog = {
+            showDialog.value = it
+        },) {
+            Log.i("MarketScreen","MarketScreen : $it")
+        }
     Box(
         contentAlignment = Alignment.CenterStart,
         modifier = Modifier
             .shadow(5.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
             .aspectRatio(4f)
-
             .fillMaxWidth()
+            .clickable {
+                showDialog.value = true
+            }
 
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            glideImage = coin.item.large
+            coinName = coin.item.name
             GlideImage(model = coin.item.large, contentDescription = coin.item?.name , Modifier.clip(CircleShape))
             Column(
             modifier = Modifier.weight(2f)
@@ -227,6 +277,84 @@ fun CryptoItem(
 
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@Composable
+fun CustomDialog(
+    value: String,
+    image : String,
+    coinName : String,
+    viewModel: MarketScreenViewModel = hiltViewModel(),
+    setShowDialog: (Boolean) -> Unit,
+    setValue: (String) -> Unit,
+) {
+    val txtFieldError by remember { mutableStateOf("") }
+    var txtField by remember { mutableStateOf(value) }
+
+    Dialog(onDismissRequest = { setShowDialog(false) }) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.Black,
+            modifier = Modifier.padding(16.dp),
+            shadowElevation = 8.dp,
+            tonalElevation = 8.dp
+            ) {
+                Column (
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    GlideImage(model = image , contentDescription = "" ,Modifier.clip(CircleShape))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = coinName, color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    TextField(
+                        value = txtField, onValueChange ={
+                            txtField = it
+                        },
+                        placeholder = { Text(text = "Enter value") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .aspectRatio(4f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                viewModel.addUserWallet(coinName,txtField)
+                                setShowDialog(false)
+                                println(viewModel.wallets.value)
+                                      },
+                            colors = ButtonDefaults.buttonColors(Color.Green),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(text = "Buy",color = Color.White)
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Button(
+                            onClick = { /*TODO*/ } ,
+                            colors = ButtonDefaults.buttonColors(Color.Red),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(text = "Sell",color = Color.White)
+                        }
+                    }
+
+                }
+
+        }
+    }
+}
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun SearchedItem(
@@ -287,7 +415,6 @@ fun CryptoList(
     val isLoading by remember {
         viewModel.isLoading
     }
-
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(contentPadding = PaddingValues(16.dp)) {
             if (!isSearching && !isLoading) {
@@ -311,7 +438,6 @@ fun CryptoList(
             )
         }
     }
-
 }
 
 
