@@ -42,9 +42,10 @@ class MainActivity : ComponentActivity() {
                     composable("market_screen"){
                         MarketScreen(navController = navController)
                     }
-                    composable("wallet_screen",){
-                        WalletScreen(navController)
+                    composable("wallet_screen"){
+                        WalletScreen(navController = navController)
                     }
+
                 }
 
             }

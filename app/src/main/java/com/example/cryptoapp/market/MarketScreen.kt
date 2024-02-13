@@ -45,18 +45,22 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cryptoapp.R
+import com.example.remote.UserWallet
 import com.example.remote.model.Coin2
 import com.example.remote.response.Coin
 
@@ -107,6 +111,26 @@ fun MarketScreen(
             ){
                 viewModel.getSearchedCoin(it)
             }
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Text(
+                    text = "Trending Coins",
+                    fontSize = 15.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(start = 16.dp),
+                    textDecoration = TextDecoration.Underline
+                )
+                Text(
+                    text = "Price(USD)",
+                    fontSize = 15.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(end = 16.dp),
+                    textDecoration = TextDecoration.Underline
+                    )
+            }
+            
             CryptoList()
 
         }
@@ -123,6 +147,7 @@ fun SearchBar(
     onSearch : (String) -> Unit = {},
 
 ){
+
      Box(
          modifier = modifier
      ) {
@@ -165,9 +190,6 @@ fun SearchBar(
                      isFocused = false
                      viewModel.isSearching.value = false
                      onSearch("")
-                     println(viewModel.wallets.value)
-                     println("asdsadsda")
-
                  },
                  modifier = Modifier.align(Alignment.CenterEnd)
              ) {
@@ -330,9 +352,8 @@ fun CustomDialog(
                     ) {
                         Button(
                             onClick = {
-                                viewModel.addUserWallet(coinName,txtField)
+                                viewModel.updateOrAddWallet(coinName,txtField.toInt(),image)
                                 setShowDialog(false)
-                                println(viewModel.wallets.value)
                                       },
                             colors = ButtonDefaults.buttonColors(Color.Green),
                             modifier = Modifier.weight(1f)
@@ -341,7 +362,10 @@ fun CustomDialog(
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Button(
-                            onClick = { /*TODO*/ } ,
+                            onClick = {
+                                viewModel.deleteWallet(coinName,txtField.toInt(),image)
+                                setShowDialog(false)
+                                      } ,
                             colors = ButtonDefaults.buttonColors(Color.Red),
                             modifier = Modifier.weight(1f)
                         ) {

@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "com.example.cryptoapp"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -77,8 +77,13 @@ dependencies {
 
     implementation ("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-compiler:2.50")
-    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0-beta01")
-
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0-rc01")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0-alpha01")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
 
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -93,5 +98,11 @@ dependencies {
 
     implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation("io.github.thechance101:chart:Beta-0.0.5")
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
 
 }
