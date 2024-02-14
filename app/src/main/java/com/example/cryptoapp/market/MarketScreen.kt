@@ -69,6 +69,7 @@ fun MarketScreen(
     navController: NavController,
     viewModel: MarketScreenViewModel = hiltViewModel()
 ){
+    var isSearching by remember { mutableStateOf(false) }
     Surface(
         color = Color(0xFF000000),
         modifier = Modifier.fillMaxSize()
@@ -110,33 +111,39 @@ fun MarketScreen(
                 hint = "Search coins",
             ){
                 viewModel.getSearchedCoin(it)
+                isSearching = it.isNotEmpty()
             }
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Text(
-                    text = "Trending Coins",
-                    fontSize = 15.sp,
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 16.dp),
-                    textDecoration = TextDecoration.Underline
-                )
-                Text(
-                    text = "Price(USD)",
-                    fontSize = 15.sp,
-                    color = Color.White,
-                    modifier = Modifier.padding(end = 16.dp),
-                    textDecoration = TextDecoration.Underline
-                    )
+            if (!isSearching){
+                Test()
             }
-            
             CryptoList()
 
         }
 
     }
 
+}
+@Composable
+fun Test(){
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        Text(
+            text = "Trending Coins",
+            fontSize = 15.sp,
+            color = Color.White,
+            modifier = Modifier.padding(start = 16.dp),
+            textDecoration = TextDecoration.Underline
+        )
+        Text(
+            text = "Price(USD)",
+            fontSize = 15.sp,
+            color = Color.White,
+            modifier = Modifier.padding(end = 16.dp),
+            textDecoration = TextDecoration.Underline
+        )
+    }
 }
 
 @Composable
@@ -145,7 +152,6 @@ fun SearchBar(
     viewModel: MarketScreenViewModel = hiltViewModel(),
     hint : String = "",
     onSearch : (String) -> Unit = {},
-
 ){
 
      Box(
