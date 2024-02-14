@@ -1,6 +1,8 @@
 # CryptoAppCompose
 
-A crypto application I developed to learn jetpack compose.
+A crypto application I developed to learn jetpack compose
+
+Api -> https://www.coingecko.com/api/documentation
 
 ## Libraries And Technology Used
 
