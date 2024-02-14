@@ -15,3 +15,4 @@ A crypto application I developed to learn jetpack compose.
 
   
 ## Screenshots
+![image](https://github.com/rasitmelihdincer/CryptoAppCompose/assets/118563350/74168019-687e-48d3-889c-4fa4ad03bb16)
